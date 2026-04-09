@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { requireRole } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/server';
+import { deleteUser } from '@/lib/actions/users';
+import { UserDeleteButton } from '@/components/UserDeleteButton';
 
 export default async function UserListPage() {
   await requireRole('admin');
@@ -22,7 +24,10 @@ export default async function UserListPage() {
                 <td>{u.username}</td><td>{u.email}</td><td>{u.first_name} {u.last_name}</td>
                 <td><span className="badge text-bg-secondary">{u.role}</span></td>
                 <td>{u.is_active ? 'Yes' : 'No'}</td>
-                <td><Link className="btn btn-sm btn-outline-primary" href={`/accounts/users/${u.id}/edit`}>Edit</Link></td>
+                <td className="text-end">
+                  <Link className="btn btn-sm btn-outline-primary" href={`/accounts/users/${u.id}/edit`}>Edit</Link>
+                  <UserDeleteButton userId={u.id} username={u.username} action={deleteUser} />
+                </td>
               </tr>
             ))}
           </tbody>
