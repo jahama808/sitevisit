@@ -65,7 +65,7 @@ export default async function StatsPage() {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="mb-0">All Site Visits</h5>
           <div className="d-flex gap-2">
-            <a className="btn btn-sm btn-outline-success" href="/api/export/csv"><i className="bi bi-filetype-csv" /> Export CSV</a>
+            <a className="btn btn-sm btn-outline-success" href="/api/export/csv"><i className="bi bi-file-earmark-spreadsheet" /> Export XLSX</a>
             <a className="btn btn-sm btn-outline-danger" href="/api/export/pdf"><i className="bi bi-filetype-pdf" /> Export PDF</a>
           </div>
         </div>
@@ -87,6 +87,67 @@ export default async function StatsPage() {
           </tbody>
         </table></div>
       </div></div>
+
+      <SalesSummaryTable visits={allVisits ?? []} displayName={displayName} />
     </>
+  );
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function SalesSummaryTable({ visits, displayName }: { visits: Array<{ submitted_by_profile: { first_name?: string; last_name?: string; username?: string } | null; created_at: string }>; displayName: (p: { first_name?: string; last_name?: string; username?: string } | null) => string }) {
+  const salesByMonth: Record<string, Record<string, number>> = {};
+  const allMonthKeys = new Set<string>();
+
+  for (const v of visits) {
+    const salesName = displayName(v.submitted_by_profile);
+    const created = new Date(v.created_at);
+    const monthKey = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, '0')}`;
+    allMonthKeys.add(monthKey);
+    if (!salesByMonth[salesName]) salesByMonth[salesName] = {};
+    salesByMonth[salesName][monthKey] = (salesByMonth[salesName][monthKey] ?? 0) + 1;
+  }
+
+  const sortedMonthKeys = [...allMonthKeys].sort();
+  const monthLabels = sortedMonthKeys.map(k => {
+    const [y, m] = k.split('-');
+    return `${MONTHS[Number(m) - 1]} ${y}`;
+  });
+
+  const salespeople = Object.keys(salesByMonth).sort();
+
+  return (
+    <div className="card border-0 shadow-sm mb-4"><div className="card-body">
+      <h5 className="mb-3">By Sales Person</h5>
+      <div className="table-responsive"><table className="table table-hover align-middle table-sm">
+        <thead>
+          <tr>
+            <th>Sales Person</th>
+            {monthLabels.map(m => <th key={m}>{m}</th>)}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {salespeople.map(sp => {
+            const counts = sortedMonthKeys.map(k => salesByMonth[sp][k] ?? 0);
+            const total = counts.reduce((a, b) => a + b, 0);
+            return (
+              <tr key={sp}>
+                <td>{sp}</td>
+                {counts.map((c, i) => <td key={i}>{c || '-'}</td>)}
+                <td><strong>{total}</strong></td>
+              </tr>
+            );
+          })}
+          <tr className="table-active">
+            <td><strong>Total</strong></td>
+            {sortedMonthKeys.map((k, i) => (
+              <td key={i}><strong>{salespeople.reduce((sum, sp) => sum + (salesByMonth[sp][k] ?? 0), 0)}</strong></td>
+            ))}
+            <td><strong>{visits.length}</strong></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div></div>
   );
 }
