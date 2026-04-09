@@ -28,27 +28,18 @@ export default async function VisitListPage() {
   await requireAuth();
   const supabase = await createClient();
 
-  const { data: activeVisits } = await supabase
+  // Fetch all visits, then split into active vs completed client-side
+  // Completed = status completed AND wiring plan sent AND costs sent
+  const { data: allVisits } = await supabase
     .from('site_visit_requests')
     .select('*, submitted_by_profile:profiles!submitted_by(*), assigned_designer_profile:profiles!assigned_designer(*)')
-    .not('request_status', 'eq', 'completed')
     .order('created_at', { ascending: false });
 
-  const { data: activeCompleted } = await supabase
-    .from('site_visit_requests')
-    .select('*, submitted_by_profile:profiles!submitted_by(*), assigned_designer_profile:profiles!assigned_designer(*)')
-    .eq('request_status', 'completed')
-    .neq('wiring_plan_status', 'sent')
-    .order('created_at', { ascending: false });
+  const isCompleted = (v: { request_status: string; wiring_plan_status: string; costs_status: string }) =>
+    v.request_status === 'completed' && v.wiring_plan_status === 'sent' && v.costs_status === 'sent';
 
-  const allActive = [...(activeVisits ?? []), ...(activeCompleted ?? [])];
-
-  const { data: completedVisits } = await supabase
-    .from('site_visit_requests')
-    .select('*, submitted_by_profile:profiles!submitted_by(*), assigned_designer_profile:profiles!assigned_designer(*)')
-    .eq('request_status', 'completed')
-    .eq('wiring_plan_status', 'sent')
-    .order('updated_at', { ascending: false });
+  const allActive = (allVisits ?? []).filter((v) => !isCompleted(v));
+  const completedVisits = (allVisits ?? []).filter(isCompleted);
 
   return (
     <>
