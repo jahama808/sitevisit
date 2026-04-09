@@ -15,6 +15,9 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
     .eq('id', Number(id)).single();
   if (!visit) notFound();
 
+  // Sales users can only view their own visits
+  if (profile.role === 'sales' && visit.submitted_by !== profile.id) notFound();
+
   const { data: designers } = await supabase
     .from('profiles').select('id, username, first_name, last_name').eq('role', 'designer').eq('is_active', true);
 

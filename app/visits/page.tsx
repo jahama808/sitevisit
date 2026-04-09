@@ -25,15 +25,21 @@ function displayName(p: { first_name?: string; last_name?: string; username?: st
 }
 
 export default async function VisitListPage() {
-  await requireAuth();
+  const profile = await requireAuth();
+  const isSales = profile.role === 'sales';
   const supabase = await createClient();
 
-  // Fetch all visits, then split into active vs completed client-side
-  // Completed = status completed AND wiring plan sent AND costs sent
-  const { data: allVisits } = await supabase
+  // Fetch visits — sales users only see their own
+  let query = supabase
     .from('site_visit_requests')
     .select('*, submitted_by_profile:profiles!submitted_by(*), assigned_designer_profile:profiles!assigned_designer(*)')
     .order('created_at', { ascending: false });
+
+  if (isSales) {
+    query = query.eq('submitted_by', profile.id);
+  }
+
+  const { data: allVisits } = await query;
 
   const isCompleted = (v: { request_status: string; wiring_plan_status: string; costs_status: string }) =>
     v.request_status === 'completed' && v.wiring_plan_status === 'sent' && v.costs_status === 'sent';
@@ -70,8 +76,10 @@ export default async function VisitListPage() {
                   <td><StatusSelect visitId={r.id} field="wiring_plan_status" currentValue={r.wiring_plan_status} options={DELIVERY_OPTIONS} action={updateStatusField} /></td>
                   <td><StatusSelect visitId={r.id} field="costs_status" currentValue={r.costs_status} options={DELIVERY_OPTIONS} action={updateStatusField} /></td>
                   <td className="text-end">
-                    <Link className="btn btn-sm btn-outline-primary" href={`/visits/${r.id}/edit`}>Edit</Link>
-                    <DeleteButton visitId={r.id} action={deleteVisit} />
+                    {(!isSales || r.submitted_by === profile.id) && (
+                      <Link className="btn btn-sm btn-outline-primary" href={`/visits/${r.id}/edit`}>Edit</Link>
+                    )}
+                    {!isSales && <DeleteButton visitId={r.id} action={deleteVisit} />}
                   </td>
                 </tr>
               )) : <tr><td colSpan={10} className="text-muted">No active records</td></tr>}
@@ -98,8 +106,10 @@ export default async function VisitListPage() {
                   <td><StatusSelect visitId={r.id} field="wiring_plan_status" currentValue={r.wiring_plan_status} options={DELIVERY_OPTIONS} action={updateStatusField} /></td>
                   <td><StatusSelect visitId={r.id} field="costs_status" currentValue={r.costs_status} options={DELIVERY_OPTIONS} action={updateStatusField} /></td>
                   <td className="text-end">
-                    <Link className="btn btn-sm btn-outline-primary" href={`/visits/${r.id}/edit`}>Edit</Link>
-                    <DeleteButton visitId={r.id} action={deleteVisit} />
+                    {(!isSales || r.submitted_by === profile.id) && (
+                      <Link className="btn btn-sm btn-outline-primary" href={`/visits/${r.id}/edit`}>Edit</Link>
+                    )}
+                    {!isSales && <DeleteButton visitId={r.id} action={deleteVisit} />}
                   </td>
                 </tr>
               )) : <tr><td colSpan={10} className="text-muted">No completed records</td></tr>}

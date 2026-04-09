@@ -39,6 +39,12 @@ export async function deleteVisit(visitId: number) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Check if sales user — sales cannot delete
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role === 'sales') throw new Error('Sales users cannot delete visits');
+  }
+
   const { data: visit } = await supabase
     .from('site_visit_requests').select('property_name').eq('id', visitId).single();
 
