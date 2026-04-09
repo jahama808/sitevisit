@@ -13,6 +13,18 @@ export default async function CalendarPage() {
     .not('status', 'eq', 'cancelled');
 
   const designerIds = [...new Set((visits ?? []).map((v) => v.assigned_designer).filter(Boolean))];
+
+  // Fetch designer names
+  const { data: designers } = designerIds.length > 0
+    ? await supabase.from('profiles').select('id, first_name, last_name, username').in('id', designerIds)
+    : { data: [] };
+
+  const designerNames: Record<string, string> = {};
+  for (const d of designers ?? []) {
+    const full = `${d.first_name ?? ''} ${d.last_name ?? ''}`.trim();
+    designerNames[d.id] = full || d.username;
+  }
+
   const colorMap: Record<string, string> = {};
   designerIds.forEach((id, i) => { colorMap[id!] = COLOR_PALETTE[i % COLOR_PALETTE.length]; });
 
@@ -22,5 +34,30 @@ export default async function CalendarPage() {
     color: v.assigned_designer ? colorMap[v.assigned_designer] : '#6b7280',
   }));
 
-  return (<><h4 className="mb-3">Visit Calendar</h4><div className="card border-0 shadow-sm"><div className="card-body"><CalendarView events={events} /></div></div></>);
+  const legend = designerIds.map((id) => ({
+    name: designerNames[id!] ?? 'Unknown',
+    color: colorMap[id!],
+  }));
+  if ((visits ?? []).some((v) => !v.assigned_designer)) {
+    legend.push({ name: 'Unassigned', color: '#6b7280' });
+  }
+
+  return (
+    <>
+      <h4 className="mb-3">Visit Calendar</h4>
+      <div className="card border-0 shadow-sm">
+        <div className="card-body">
+          <div className="d-flex flex-wrap gap-3 mb-3">
+            {legend.map((item) => (
+              <div key={item.name} className="d-flex align-items-center gap-1">
+                <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color }} />
+                <span className="small">{item.name}</span>
+              </div>
+            ))}
+          </div>
+          <CalendarView events={events} />
+        </div>
+      </div>
+    </>
+  );
 }
