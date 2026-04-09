@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireRole } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/server';
 import { StatsCharts } from '@/components/StatsCharts';
+import { StatsHeader } from '@/components/StatsHeader';
 
 const STATUS_ORDER: Record<string, number> = { received: 0, scheduled: 1, completed: 2 };
 const DELIVERY_LABELS: Record<string, string> = { in_progress: 'In Progress', sent: 'Sent' };
@@ -58,6 +59,7 @@ export default async function StatsPage() {
   return (
     <>
       <h4 className="mb-4">Visit Stats</h4>
+      <StatsHeader visits={(allVisits ?? []).map((v) => ({ request_status: v.request_status, wiring_plan_status: v.wiring_plan_status, created_at: v.created_at }))} />
       <StatsCharts barLabels={allMonths} barOnTime={allMonths.map(m => monthlyOnTime[m] ?? 0)} barLate={allMonths.map(m => monthlyLate[m] ?? 0)} pieWithin14={pieWithin14} pieOver14={pieOver14} />
       <div className="card border-0 shadow-sm mb-4"><div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-3">
