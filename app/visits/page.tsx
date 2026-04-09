@@ -53,7 +53,7 @@ export default async function VisitListPage() {
         <h5 className="mb-3">Active</h5>
         <div className="table-responsive queue-table-wrap">
           <table className="table table-hover align-middle queue-table">
-            <thead><tr><th>ID</th><th>Property</th><th>Island</th><th>Requestor</th><th>Status</th><th>Assigned</th><th>Preferred</th><th>Wiring Plan</th><th>Costs</th><th></th></tr></thead>
+            <thead><tr><th>ID</th><th>Property</th><th>Island</th><th>Requestor</th><th>Status</th><th>Assigned</th><th>Completed</th><th>Wiring Plan</th><th>Costs</th><th></th></tr></thead>
             <tbody>
               {allActive.length > 0 ? allActive.map((r) => (
                 <tr key={r.id}>
@@ -63,7 +63,10 @@ export default async function VisitListPage() {
                   <td>{displayName(r.submitted_by_profile)}</td>
                   <td><StatusSelect visitId={r.id} field="request_status" currentValue={r.request_status} options={REQUEST_STATUS_OPTIONS} action={updateStatusField} /></td>
                   <td>{displayName(r.assigned_designer_profile)}</td>
-                  <td>{new Date(r.preferred_start).toLocaleString()}</td>
+                  <td>{r.request_status === 'completed'
+                    ? <DateInput visitId={r.id} field="date_completed" value={r.date_completed} action={updateDateField} />
+                    : <span className="text-muted">Pending</span>}
+                  </td>
                   <td><StatusSelect visitId={r.id} field="wiring_plan_status" currentValue={r.wiring_plan_status} options={DELIVERY_OPTIONS} action={updateStatusField} /></td>
                   <td><StatusSelect visitId={r.id} field="costs_status" currentValue={r.costs_status} options={DELIVERY_OPTIONS} action={updateStatusField} /></td>
                   <td className="text-end">
