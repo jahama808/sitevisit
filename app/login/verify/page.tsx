@@ -29,7 +29,7 @@ function VerifyForm() {
                   <label className="form-label">Code</label>
                   <input
                     type="text" name="code" className="form-control"
-                    required autoFocus maxLength={6} pattern="[0-9]{6}" placeholder="000000"
+                    required autoFocus maxLength={8} pattern="[0-9]{6,8}" placeholder="00000000"
                   />
                 </div>
                 <button className="btn btn-primary w-100" type="submit" disabled={pending}>
