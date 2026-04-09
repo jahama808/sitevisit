@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import { createUser } from '@/lib/actions/users';
 
-const ROLES = ['admin', 'manager', 'requester', 'designer'];
+const ROLES = ['admin', 'manager', 'sales', 'requester', 'designer'];
 
 export default function NewUserPage() {
   const [state, action, pending] = useActionState(createUser, null);

@@ -71,7 +71,7 @@ export async function createVisit(_prev: unknown, formData: FormData) {
     scope_common_area_requirements: formData.get('scope_common_area_requirements') === 'on',
     notes: (formData.get('notes') as string) ?? '',
     install_plan_url: (formData.get('install_plan_url') as string) ?? '',
-    submitted_by: user.id,
+    submitted_by: (formData.get('requestor_id') as string) || user.id,
   };
 
   const { data, error } = await supabase.from('site_visit_requests').insert(visit).select('id').single();
@@ -104,6 +104,7 @@ export async function updateVisit(visitId: number, _prev: unknown, formData: For
     scope_common_area_requirements: formData.get('scope_common_area_requirements') === 'on',
     notes: (formData.get('notes') as string) ?? '',
     install_plan_url: (formData.get('install_plan_url') as string) ?? '',
+    submitted_by: (formData.get('requestor_id') as string) || undefined,
   };
 
   await supabase.from('site_visit_requests').update(updates).eq('id', visitId);

@@ -1,16 +1,18 @@
 'use client';
 
 import { useActionState } from 'react';
-import type { SiteVisitRequest } from '@/lib/types';
+import type { Profile, SiteVisitRequest } from '@/lib/types';
 
 const ISLANDS = ['Oahu', 'Maui', 'Kauai', 'Hawaii'];
 
 interface VisitFormProps {
   action: (_prev: unknown, formData: FormData) => Promise<{ error?: string } | void>;
   visit?: SiteVisitRequest;
+  requestors?: Pick<Profile, 'id' | 'first_name' | 'last_name' | 'username'>[];
+  currentUserId?: string;
 }
 
-export function VisitForm({ action, visit }: VisitFormProps) {
+export function VisitForm({ action, visit, requestors, currentUserId }: VisitFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
 
   return (
@@ -28,6 +30,17 @@ export function VisitForm({ action, visit }: VisitFormProps) {
             <select name="island" className="form-select" required defaultValue={visit?.island ?? ''}>
               <option value="">Select...</option>
               {ISLANDS.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">Requestor *</label>
+            <select name="requestor_id" className="form-select" required defaultValue={visit?.submitted_by ?? currentUserId ?? ''}>
+              <option value="">Select...</option>
+              {(requestors ?? []).map((r) => (
+                <option key={r.id} value={r.id}>
+                  {`${r.first_name ?? ''} ${r.last_name ?? ''}`.trim() || r.username}
+                </option>
+              ))}
             </select>
           </div>
         </div>

@@ -11,9 +11,15 @@ export function Navbar({ profile }: { profile: Profile | null }) {
         </Link>
         {profile && (
           <div className="d-flex gap-2">
-            <Link className="btn btn-sm btn-outline-primary" href="/visits">Queue</Link>
-            <Link className="btn btn-sm btn-outline-primary" href="/visits/calendar">Calendar</Link>
-            <Link className="btn btn-sm btn-outline-primary" href="/accounts/designers">Designers</Link>
+            {profile.role !== 'sales' && (
+              <Link className="btn btn-sm btn-outline-primary" href="/visits">Queue</Link>
+            )}
+            {profile.role !== 'sales' && (
+              <Link className="btn btn-sm btn-outline-primary" href="/visits/calendar">Calendar</Link>
+            )}
+            {profile.role !== 'sales' && (
+              <Link className="btn btn-sm btn-outline-primary" href="/accounts/designers">Designers</Link>
+            )}
             {(profile.role === 'admin' || profile.role === 'manager') && (
               <Link className="btn btn-sm btn-outline-primary" href="/visits/stats">Stats</Link>
             )}

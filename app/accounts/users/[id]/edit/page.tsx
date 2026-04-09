@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/server';
 import { updateUser } from '@/lib/actions/users';
 
-const ROLES = ['admin', 'manager', 'requester', 'designer'];
+const ROLES = ['admin', 'manager', 'sales', 'requester', 'designer'];
 
 export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   await requireRole('admin');

@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'manager' | 'requester' | 'designer';
+export type UserRole = 'admin' | 'manager' | 'requester' | 'designer' | 'sales';
 export type Island = 'Oahu' | 'Maui' | 'Kauai' | 'Hawaii';
 export type RequestStatus = 'received' | 'scheduled' | 'completed';
 export type DeliveryStatus = 'in_progress' | 'sent';
