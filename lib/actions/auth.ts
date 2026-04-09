@@ -2,14 +2,16 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function sendOtp(_prev: unknown, formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase();
   if (!email) return { error: 'Email is required' };
 
-  const supabase = await createClient();
+  // Use admin client to bypass RLS — user isn't authenticated yet
+  const admin = createAdminClient();
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from('profiles')
     .select('id')
     .eq('email', email)
@@ -18,6 +20,7 @@ export async function sendOtp(_prev: unknown, formData: FormData) {
 
   if (!profile) return { error: 'Account not found' };
 
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({ email });
   if (error) return { error: error.message };
 
