@@ -21,7 +21,12 @@ export async function sendOtp(_prev: unknown, formData: FormData) {
   if (!profile) return { error: 'Account not found' };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({ email });
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false,
+    },
+  });
   if (error) return { error: error.message };
 
   redirect(`/login/verify?email=${encodeURIComponent(email)}`);
