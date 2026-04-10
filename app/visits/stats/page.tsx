@@ -66,7 +66,7 @@ export default async function StatsPage() {
           <h5 className="mb-0">All Site Visits</h5>
           <div className="d-flex gap-2">
             <a className="btn btn-sm btn-outline-success" href="/api/export/csv"><i className="bi bi-file-earmark-spreadsheet" /> Export XLSX</a>
-            <a className="btn btn-sm btn-outline-danger" href="/api/export/pdf"><i className="bi bi-filetype-pdf" /> Export PDF</a>
+            <a className="btn btn-sm btn-outline-danger" href="/api/export/pdf" target="_blank" rel="noopener noreferrer"><i className="bi bi-filetype-pdf" /> Export PDF</a>
           </div>
         </div>
         <div className="table-responsive"><table className="table table-hover align-middle table-sm">
