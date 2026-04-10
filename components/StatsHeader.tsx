@@ -70,19 +70,13 @@ export function StatsHeader({ visits }: StatsHeaderProps) {
         <span className="small text-muted">{label}</span>
       </div>
       <div className="row g-3">
-        <div className="col-md-4">
+        <div className="col-md-6">
           <div className="card stat-card p-3">
             <div className="label">Total Site Visits</div>
             <div className="value">{totalVisits}</div>
           </div>
         </div>
-        <div className="col-md-4">
-          <div className="card stat-card p-3">
-            <div className="label">Wiring Plans Completed</div>
-            <div className="value" style={{ color: 'rgba(34, 197, 94, 1)' }}>{wiringCompleted}</div>
-          </div>
-        </div>
-        <div className="col-md-4">
+        <div className="col-md-6">
           <div className="card stat-card p-3">
             <div className="label">Wiring Plans Pending</div>
             <div className="value" style={{ color: 'rgba(239, 68, 68, 1)' }}>{wiringPending}</div>
