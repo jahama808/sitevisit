@@ -29,15 +29,35 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage =
-    request.nextUrl.pathname === '/login' ||
-    request.nextUrl.pathname === '/login/verify';
-  const isApiRoute = request.nextUrl.pathname.startsWith('/api/v1');
+  const pathname = request.nextUrl.pathname;
 
+  const isAuthPage =
+    pathname === '/login' ||
+    pathname === '/login/forgot-password' ||
+    pathname === '/login/change-password';
+  const isApiRoute = pathname.startsWith('/api/v1');
+  const isSignOutRoute = pathname === '/api/auth/signout';
+
+  // Unauthenticated users can only access auth pages and public API routes
   if (!user && !isAuthPage && !isApiRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
+  }
+
+  // Authenticated users: check must_change_password
+  if (user && !isAuthPage && !isSignOutRoute && !isApiRoute) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('must_change_password')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.must_change_password) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login/change-password';
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;
