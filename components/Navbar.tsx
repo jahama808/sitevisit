@@ -37,6 +37,9 @@ export function Navbar({ profile }: { profile: Profile | null }) {
               <span className="small text-secondary-emphasis">
                 {profile.username} ({profile.role})
               </span>
+              <Link className="btn btn-sm btn-outline-secondary" href="/accounts/profile">
+                My Account
+              </Link>
               <form action="/api/auth/signout" method="post">
                 <button type="submit" className="btn btn-sm btn-outline-secondary">Logout</button>
               </form>
