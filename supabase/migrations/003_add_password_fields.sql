@@ -1,0 +1,2 @@
+ALTER TABLE profiles
+ADD COLUMN must_change_password boolean NOT NULL DEFAULT true;
