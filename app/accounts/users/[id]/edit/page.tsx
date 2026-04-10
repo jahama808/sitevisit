@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { requireRole } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/server';
 import { updateUser } from '@/lib/actions/users';
+import ResetPasswordSection from './ResetPasswordSection';
 
 const ROLES = ['admin', 'manager', 'sales', 'requester', 'designer'];
 
@@ -30,6 +31,9 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
           <button type="submit" className="btn btn-primary">Save Changes</button>
         </form>
       </div></div>
+
+      <h5 className="mt-4 mb-3">Reset Password</h5>
+      <ResetPasswordSection userId={user.id} />
     </>
   );
 }
