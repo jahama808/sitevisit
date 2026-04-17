@@ -6,7 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useRouter } from 'next/navigation';
 
-interface CalendarEvent { id: string; title: string; start: string; end: string; color: string; }
+interface CalendarEvent { id: string; title: string; start: string; end?: string; allDay?: boolean; color: string; }
 
 export function CalendarView({ events }: { events: CalendarEvent[] }) {
   const router = useRouter();

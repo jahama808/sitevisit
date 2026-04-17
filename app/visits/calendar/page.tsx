@@ -9,8 +9,8 @@ export default async function CalendarPage() {
   const supabase = await createClient();
   const { data: visits } = await supabase
     .from('site_visit_requests')
-    .select('id, property_name, preferred_start, preferred_end, island, assigned_designer')
-    .not('status', 'eq', 'cancelled');
+    .select('id, property_name, request_status, date_performed, date_completed, island, assigned_designer')
+    .in('request_status', ['scheduled', 'completed']);
 
   const designerIds = [...new Set((visits ?? []).map((v) => v.assigned_designer).filter(Boolean))];
 
@@ -28,11 +28,17 @@ export default async function CalendarPage() {
   const colorMap: Record<string, string> = {};
   designerIds.forEach((id, i) => { colorMap[id!] = COLOR_PALETTE[i % COLOR_PALETTE.length]; });
 
-  const events = (visits ?? []).map((v) => ({
-    id: String(v.id), title: v.property_name, start: v.preferred_start,
-    end: v.preferred_end ?? v.preferred_start,
-    color: v.assigned_designer ? colorMap[v.assigned_designer] : '#6b7280',
-  }));
+  const events = (visits ?? []).filter((v) => {
+    const date = v.request_status === 'completed' ? v.date_completed : v.date_performed;
+    return date != null;
+  }).map((v) => {
+    const date = v.request_status === 'completed' ? v.date_completed : v.date_performed;
+    return {
+      id: String(v.id), title: v.property_name, start: date,
+      allDay: true,
+      color: v.assigned_designer ? colorMap[v.assigned_designer] : '#6b7280',
+    };
+  });
 
   const legend = designerIds.map((id) => ({
     name: designerNames[id!] ?? 'Unknown',
