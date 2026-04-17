@@ -47,6 +47,18 @@ export default async function VisitListPage() {
   const allActive = (allVisits ?? []).filter((v) => !isCompleted(v));
   const completedVisits = (allVisits ?? []).filter(isCompleted);
 
+  // Group active visits by designer
+  const designerCounts: { name: string; count: number }[] = [];
+  const countsByDesigner = new Map<string, { name: string; count: number }>();
+  for (const v of allActive) {
+    const name = displayName(v.assigned_designer_profile);
+    const key = v.assigned_designer ?? '_unassigned';
+    const entry = countsByDesigner.get(key);
+    if (entry) { entry.count++; } else { countsByDesigner.set(key, { name, count: 1 }); }
+  }
+  designerCounts.push(...countsByDesigner.values());
+  designerCounts.sort((a, b) => b.count - a.count);
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -54,6 +66,19 @@ export default async function VisitListPage() {
         <Link className="btn btn-primary" href="/visits/new">New Request</Link>
       </div>
       <div className="mb-3"><SearchInput /></div>
+
+      <div className="row g-3 mb-4">
+        {designerCounts.slice(0, 3).map((d) => (
+          <div key={d.name} className="col-md-4">
+            <div className="card border-0 shadow-sm text-center">
+              <div className="card-body py-3">
+                <div className="fs-2 fw-bold">{d.count}</div>
+                <div className="text-muted small">{d.name}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="card border-0 shadow-sm queue-table-card mb-4"><div className="card-body">
         <h5 className="mb-3">Active</h5>
